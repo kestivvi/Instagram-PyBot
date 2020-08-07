@@ -400,8 +400,11 @@ def work_on_site():
         posts = remove_duplicates(posts)
         post = posts[post_nr]
 
-        # For each post
-        post.click()
+        try:
+            post.click()
+        except:
+            post_nr += 1
+            continue
         time.sleep(random.uniform(0.5,2))
 
         # If post not loaded
