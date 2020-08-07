@@ -182,19 +182,36 @@ def change_site_person(name):
 def change_site_main():
     driver.get("https://www.instagram.com")
 
+    # Omitting instagram dialog about notifications, if present
+    try:
+        not_now_button = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role=dialog] button.HoLwm"))
+            )
+        not_now_button.click()
+    except:
+        pass
+
 
 def change_site_profile():
+
+    # Clicking on the profile image
     profile_div = driver.find_element_by_css_selector("div.Fifk5 > span[role=link]")
     profile_div.click()
-    time.sleep(random.uniform(0.5,2))
-    profile_button = driver.find_element_by_css_selector("div._01UL2 > a.-qQT3")
-    profile_button.click()
+    
+    # Clicking first option "profile"
+    try:
+        profile_button = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div._01UL2 > a.-qQT3"))
+            )
+        profile_button.click()
+    except:
+        pass
+    
+    # Be sure page is loaded
     try:
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "be6sR")))
-        return True
     except NoSuchElementException:
-        return False
-    return False
+        pass    
 
 
 def change_site(name=""):
