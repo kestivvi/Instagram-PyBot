@@ -1,0 +1,36 @@
+{
+    "credential_file":"./sample/secret.txt",
+    "login":"",
+    "password":"",
+
+    "comments_file":"./sample/comments.txt",
+    "emojis_file":"./sample/emojis.txt",
+    "sites_file":"./sample/sites.txt",
+
+    "json_config":"./sample/config.json",
+    "statistics_folder":"./sample/statistics/",
+    "web_browser_driver":"",
+    "headless":false,
+
+    "verbose":false,
+    "checking_frequency":1800,
+
+    "chance_of_change_site":0.03,
+    "chance_of_like":0.8,
+    "chance_of_comment":0.05,
+    "chance_of_follow":0.4,
+    "chance_of_unfollow":0.02,
+
+    "min_of_followings":100,
+    "max_of_followings":200,
+
+    "max_likes_per_hour":50,
+    "max_comments_per_hour":2,
+    "max_follows_per_hour":5,
+    "max_unfollows_per_hour":5,
+
+    "max_likes_per_day":500,
+    "max_comments_per_day":10,
+    "max_follows_per_day":75,
+    "max_unfollows_per_day":75
+}
