@@ -16,6 +16,10 @@ class ActionBlock(Exception):
     pass
 
 
+class WrongCredentials(Exception):
+    pass
+
+
 ###############################
 # FUNCTIONS
 
@@ -113,38 +117,55 @@ def driver_close():
 
 
 def log_in():
-    driver.get("https://instagram.com")
+
+    # Loading main instagram page to log in
+    loaded = False
+    while not loaded:
+        driver.get("https://instagram.com")
+        
+        try:
+            password_field = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.NAME, "password"))
+            )
+        except:
+            continue
+        try:
+            username_field = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.NAME, "username"))
+            )
+        except:
+            continue
+        loaded = True
     
-    password_field = None
-    try:
-        password_field = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.NAME, "password"))
-        )
-    except:
-        driver.quit()
-    
-    username_field = driver.find_element_by_name("username")
-    
+    # Typing in credentials and logging in
     credentials = get_credentials()
     type_in(username_field, credentials[0])
     type_in(password_field, credentials[1])
     del credentials
 
     password_field.send_keys(Keys.RETURN)
-    time.sleep(random.uniform(4,6))
-    
-    driver.get("https://instagram.com")
 
+    # Checking if credentials has been correct
     try:
-        not_now_button = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role=dialog] button.HoLwm"))
-            )
-        not_now_button.click()
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.ID, "slfErrorAlert"))
+        )
+        print("[ERROR]: Wrong Credentials! Check if username and password are correct!")
+        raise WrongCredentials
     except:
         pass
-    
-    time.sleep(random.uniform(2,4))
-    get_following_count()
+
+    # Waiting for instagram to load up
+    try:
+        WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "s4Iyt"))
+        )
+    except:
+        print("[ERROR]: Page cannot load")
+        exit()
+
+    # Ommitting instagram question dialog about saving credentials
+    change_site_main()
 
 
 def get_following_count():
