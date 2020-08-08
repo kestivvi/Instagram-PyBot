@@ -173,7 +173,7 @@ def handle_args():
     
     parser.add_argument('-hl', '--headless',
                         help="Make chrome headless, means browser's window is not rendered.",
-                        default=config_default.verbose,
+                        default=config_default.headless,
                         action="store_true")
 
 
