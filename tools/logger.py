@@ -14,8 +14,46 @@ class BotStatus():
     SLEEPING = "Sleeping"
     NONE = ""
 
-##################################
-# Logger class
+
+class _SilentLogger():
+
+    __instance = None
+
+    @staticmethod
+    def getInstance():
+        if _SilentLogger.__instance == None:
+            _SilentLogger()
+        return _SilentLogger.__instance
+
+    def __init__(self):
+        if _SilentLogger.__instance != None:
+            raise Exception("This class is a singleton!")
+        _SilentLogger.__instance = self
+        
+    def set_bot_status(self, status=BotStatus.NONE):
+        pass
+    
+    def get_bot_status(self):
+        pass
+    
+    def set_current_site(self, current_site=""):
+        pass
+
+    def get_current_site(self):
+        pass
+    
+    def set_followings(self, followings=""):
+        pass
+
+    def get_followings(self):
+        pass
+    
+    def set_followers(self, followers=""):
+        pass
+
+    def get_followers(self):
+        pass
+
 
 class Logger():
 
@@ -23,9 +61,13 @@ class Logger():
 
     @staticmethod
     def getInstance():
-        if Logger.__instance == None:
-            Logger()
-        return Logger.__instance  
+        if config.data.verbose:
+            if Logger.__instance == None:
+                Logger()
+            return Logger.__instance
+        else:
+            return _SilentLogger.getInstance()
+
 
     def __init__(self, status=BotStatus.NONE, current_site=""):
         if Logger.__instance != None:

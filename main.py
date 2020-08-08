@@ -9,7 +9,7 @@ from tools.logger import Logger
 
 def main():
     config.handle_args()
-    Logger()
+    Logger.getInstance()
     
     # While True
     while True:
