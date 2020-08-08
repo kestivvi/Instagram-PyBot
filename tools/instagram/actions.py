@@ -195,7 +195,7 @@ def change_site_main():
 
     # Omitting instagram dialog about notifications, if present
     try:
-        not_now_button = WebDriverWait(driver, 4).until(
+        not_now_button = WebDriverWait(driver, 1).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div[role=dialog] button.HoLwm"))
             )
         not_now_button.click()
