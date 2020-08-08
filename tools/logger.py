@@ -5,10 +5,12 @@ from tools import statistics, config
 # VARIABLES
 
 class BotStatus():
+    STARTING_DRIVER = "Starting Driver"
     LOGGING_IN = "Logging In"
     UNFOLLOWING_IN_PROFILE = "Unfollowing in profile list"
     RUNNING = "Running"
     LOGGING_OUT = "Logging Out"
+    CLOSING_DRIVER = "Closing Driver"
     SLEEPING = "Sleeping"
     NONE = ""
 
@@ -45,8 +47,7 @@ class Logger():
         return self.bot_status
     
     def set_current_site(self, current_site=""):
-        if current_site != "":
-            self.current_site = current_site
+        self.current_site = current_site
 
     def get_current_site(self):
         return self.current_site

@@ -4,9 +4,11 @@ from tools import instagram
 from tools.instagram import actions, errors
 from tools import statistics, config
 from path import Path
+from tools.logger import Logger
 
 
 def main():
+    Logger()
     
     # While True
     while True:
@@ -26,10 +28,6 @@ def main():
 
         while len(SITES) > 0:
             site = SITES.pop(random.randint(0, len(SITES)-1))
-            print("Last 24H:", "LIKES:", statistics.get(statistics.Data.LIKES, hours=24), "COMMENTS:", statistics.get(statistics.Data.COMMENTS, hours=24), "FOLLOWS:", statistics.get(statistics.Data.FOLLOWS, hours=24), "UNFOLLOWS:", statistics.get(statistics.Data.UNFOLLOWS, hours=24))
-            print("Last 1H:", "LIKES:", statistics.get(statistics.Data.LIKES), "COMMENTS:", statistics.get(statistics.Data.COMMENTS), "FOLLOWS:", statistics.get(statistics.Data.FOLLOWS), "UNFOLLOWS:", statistics.get(statistics.Data.UNFOLLOWS))
-            print("Selected:", site)
-            print("Other sites : " + str(SITES))
             instagram.actions.change_site(site)
 
             try: 
