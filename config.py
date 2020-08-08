@@ -29,6 +29,7 @@ class _CONFIG_DEFAULT:
     chance_of_follow = 0.4
     chance_of_unfollow = 1/50
 
+    unfollow_non_followers_first = True
     min_of_followings = 100
     max_of_followings = 120
 
@@ -227,6 +228,11 @@ def handle_args():
 
 
     # Followings limits
+
+    parser.add_argument('--unfollow_non_followers_first',  
+                        help="Does bot have to unfollow not followers first. Default is true. Calling this flag you set it to false.",
+                        default=config_default.unfollow_non_followers_first,
+                        action="store_false")
 
     parser.add_argument('--min_of_followings',
                         help="The minimum number of followed people by bot.",

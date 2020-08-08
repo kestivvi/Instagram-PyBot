@@ -21,6 +21,7 @@
     "chance_of_follow":0.4,
     "chance_of_unfollow":0.02,
 
+    "unfollow_non_followers_first":true,
     "min_of_followings":100,
     "max_of_followings":200,
 

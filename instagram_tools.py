@@ -205,7 +205,7 @@ def change_site_main():
 
     # Omitting instagram dialog about notifications, if present
     try:
-        not_now_button = WebDriverWait(driver, 10).until(
+        not_now_button = WebDriverWait(driver, 4).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div[role=dialog] button.HoLwm"))
             )
         not_now_button.click()
@@ -331,10 +331,55 @@ def unfollow(post):
     return False
 
 
+def get_followers_count():
+    change_site_profile()
+    followers_div = driver.find_element_by_css_selector('a.-nal3[href*="followers"]')
+    return int(followers_div.find_element_by_css_selector("span.g47SY").text)
+
+
+def get_followers():
+    change_site_profile()
+    followers_count = get_followers_count()
+
+    followers_button = driver.find_element_by_css_selector('a.-nal3[href*="followers"]')
+    followers_button.click()
+
+    # Find div where all followers are in list
+    followers_list_div = driver.find_element_by_class_name("PZuss")
+
+    # Scroll all the way down
+    count = 0
+    followers_list = followers_list_div.find_elements_by_tag_name("li")
+    while count != followers_count:
+        driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastChild.scrollIntoView()')
+        
+        # Wait for content to load
+        last_child = driver.find_element_by_css_selector(".PZuss:last-child")
+        time.sleep(0.2)
+        while last_child != driver.find_element_by_css_selector(".PZuss:last-child"):
+            time.sleep(0.2)
+            last_child = driver.find_element_by_css_selector(".PZuss:last-child")
+
+        followers_list = followers_list_div.find_elements_by_tag_name("li")
+        count = len(followers_list)
+    
+    # Get the names
+    followers_names = []
+    for div in followers_list:
+        followers_names.append(div.find_element_by_class_name("FPmhX").text.strip())
+    
+    change_site_main()
+
+    return followers_names
+
+
 def unfollow_in_profile():
+
+    # Get count of people you're following
     global followings
     get_following_count()
 
+    # Check limit
     unfollow_limit = not (config.data.chance_of_unfollow > 0 
         and statistics.get(statistics.Data.UNFOLLOWS, hours=1) < config.data.max_unfollows_per_hour 
         and statistics.get(statistics.Data.UNFOLLOWS, hours=24) < config.data.max_unfollows_per_day
@@ -343,42 +388,73 @@ def unfollow_in_profile():
     if unfollow_limit:
         return
     
+    if config.data.unfollow_non_followers_first:
+        followers_names = get_followers()
+    
     change_site_profile()
-    following_div = driver.find_element_by_css_selector('a[href*="following"]')
 
-    time.sleep(random.uniform(1,2))
+    # Find button
+    following_div = driver.find_element_by_css_selector('a[href*="following"]')
     following_div.click()
-    time.sleep(random.uniform(1,2))
+
+    # Find div where all followers are in list
     following_list_div = driver.find_element_by_class_name("PZuss")
 
-    # Scroll down
+    # Scroll all the way down
     count = 0
     following_list = following_list_div.find_elements_by_tag_name("li")
     while count != followings:
         driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastChild.scrollIntoView()')
-        time.sleep(random.uniform(1,2))
+
+        # Wait for content to load
+        last_child = driver.find_element_by_css_selector(".PZuss:last-child")
+        time.sleep(0.2)
+        while last_child != driver.find_element_by_css_selector(".PZuss:last-child"):
+            time.sleep(0.2)
+            last_child = driver.find_element_by_css_selector(".PZuss:last-child")
+        
         following_list = following_list_div.find_elements_by_tag_name("li")
         count = len(following_list)
     
+    # While limit is not reached unfollow
     while not unfollow_limit:
-        following = following_list.pop(random.randint(0, len(following_list)-1))
+
+        if config.data.verbose:
+            print("Last 24H:", "LIKES:", statistics.get(statistics.Data.LIKES, hours=24), "COMMENTS:", statistics.get(statistics.Data.COMMENTS, hours=24), "FOLLOWS:", statistics.get(statistics.Data.FOLLOWS, hours=24), "UNFOLLOWS:", statistics.get(statistics.Data.UNFOLLOWS, hours=24))
+            print("Last 1H:", "LIKES:", statistics.get(statistics.Data.LIKES), "COMMENTS:", statistics.get(statistics.Data.COMMENTS), "FOLLOWS:", statistics.get(statistics.Data.FOLLOWS), "UNFOLLOWS:", statistics.get(statistics.Data.UNFOLLOWS))
+
+        # If unfollow_not_followers_first find following that doesn't follow you, else random
+        if config.data.unfollow_non_followers_first:
+            following = random.choice(following_list)
+            while following.find_element_by_class_name("FPmhX").text.strip() in followers_names:
+                following = random.choice(following_list)
+
+            following_list.pop(following_list.index(following))
+        else:
+            following = following_list.pop(random.randint(0, len(following_list)-1))
         
+        # Find unfollow button
         unfollow_button = following.find_element_by_tag_name("button")
         unfollow_button.click()
-        time.sleep(random.uniform(1,2))
 
+        # Find confirmation unfollow button
         red_unfollow_button = driver.find_element_by_class_name("-Cab_")
         red_unfollow_button.click()
+
         check_restrictness()
         
+        # Update statistics
         statistics.update(statistics.Data.UNFOLLOWS)
         followings -= 1
+        
+        # Check config and limit
         config.handle_args()
         unfollow_limit = not (config.data.chance_of_unfollow > 0 
             and statistics.get(statistics.Data.UNFOLLOWS, hours=1) < config.data.max_unfollows_per_hour 
             and statistics.get(statistics.Data.UNFOLLOWS, hours=24) < config.data.max_unfollows_per_day
             and followings > config.data.min_of_followings)
-        time.sleep(random.uniform(1,2))
+    
+    change_site_main()
     
 
 def work_on_site():
