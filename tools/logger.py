@@ -17,13 +17,25 @@ class BotStatus():
 
 class Logger():
 
+    __instance = None
+
+    @staticmethod
+    def getInstance():
+        if Logger.__instance == None:
+            Logger()
+        return Logger.__instance  
+
     def __init__(self, status=BotStatus.NONE, current_site=""):
-        self.bot_status = status
-        self.current_site = current_site
-        self.followings = ""
-        self.followers = ""
-        self.thread = threading.Thread(target=self.log, daemon=True)
-        self.thread.start()
+        if Logger.__instance != None:
+            raise Exception("This class is a singleton!")
+        else:
+            self.bot_status = status
+            self.current_site = current_site
+            self.followings = ""
+            self.followers = ""
+            self.thread = threading.Thread(target=self.log, daemon=True)
+            self.thread.start()
+            Logger.__instance = self
 
     def set_bot_status(self, status=BotStatus.NONE):
         if status != BotStatus.NONE:
