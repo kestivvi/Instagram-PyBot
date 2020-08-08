@@ -5,19 +5,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 import time, random, datetime
-import statistics, config
 from path import Path
-
-
-###############################
-# CLASSES
-
-class ActionBlock(Exception):
-    pass
-
-
-class WrongCredentials(Exception):
-    pass
+from .. import statistics, config
+from . import errors
 
 
 ###############################
@@ -66,7 +56,7 @@ def check_restrictness():
 
         statistics.update(statistics.Data.ERRORS, message="Instagram ActionBlock error")
         
-        raise ActionBlock
+        raise errors.ActionBlock
     except NoSuchElementException:
         pass
 
@@ -151,7 +141,7 @@ def log_in():
             EC.presence_of_element_located((By.ID, "slfErrorAlert"))
         )
         print("[ERROR]: Wrong Credentials! Check if username and password are correct!")
-        raise WrongCredentials
+        raise errors.WrongCredentials
     except:
         pass
 
