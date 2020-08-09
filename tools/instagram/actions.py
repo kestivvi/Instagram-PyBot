@@ -7,6 +7,7 @@ from selenium.common.exceptions import NoSuchElementException
 import time, random, datetime
 from path import Path
 from .. import statistics, config
+from ..logger import Logger, BotStatus
 from . import errors
 
 
@@ -67,14 +68,17 @@ def type_in(element, text):
         time.sleep(random.uniform(0.05, 0.2))
 
 
-def sleep(seconds, interval=10):
-    now = str(datetime.datetime.now().strftime("%H:%M:%S"))
-    to = str((datetime.datetime.now() + datetime.timedelta(seconds=seconds)).strftime("%H:%M:%S"))
-    print(f"[SLEEP]: Now is {now} Waiting to {to}. Checking frequency: {seconds} seconds.")
-
+def sleep(seconds, interval=1):
+    started_at = datetime.datetime.now()
+    to = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+    logger = Logger.getInstance()
+    
     while seconds > 0:
-        time.sleep(interval)
         seconds -= interval
+        remaining = to - datetime.datetime.now()
+        message = f"Sleeping : Started at {started_at.strftime('%H:%M:%S')}. Waiting to {to.strftime('%H:%M:%S')}. Remaining time: {str(remaining).split('.')[0]}"
+        logger.set_bot_status(message)    
+        time.sleep(interval)
 
 
 def remove_duplicates(arr):
@@ -87,7 +91,9 @@ def remove_duplicates(arr):
 
 
 def driver_init():
-    
+    logger = Logger.getInstance()
+    logger.set_bot_status(BotStatus.STARTING_DRIVER)
+
     if config.data.web_browser_driver == "" or not Path(config.data.web_browser_driver).exists():
         print("[ERROR]: Path to chrome webdriver not found. Check your config.json file.")
 
@@ -103,15 +109,19 @@ def driver_init():
 
 
 def driver_close():
+    logger = Logger.getInstance()
+    logger.set_bot_status(BotStatus.CLOSING_DRIVER)
     driver.quit()
 
 
 def log_in():
+    logger = Logger.getInstance()
+    logger.set_bot_status(BotStatus.LOGGING_IN)
 
     # Loading main instagram page to log in
     loaded = False
     while not loaded:
-        driver.get("https://instagram.com")
+        change_site_main()
         
         try:
             password_field = WebDriverWait(driver, 10).until(
@@ -164,8 +174,15 @@ def get_following_count():
     global followings
     followings = int(following_div.find_element_by_css_selector("span.g47SY").text)
 
+    logger = Logger.getInstance()
+    logger.set_followings(followings)
+
 
 def log_out():
+
+    logger = Logger.getInstance()
+    logger.set_bot_status(BotStatus.LOGGING_OUT)
+
     profile_div = driver.find_element_by_css_selector("div.Fifk5 > span[role=link]")
     profile_div.click()
     time.sleep(random.uniform(0.5,2))
@@ -178,20 +195,34 @@ def log_out():
         )
     except:
         pass
+    logger.set_current_site("")
 
 
 def change_site_hashtag(name):
     while name[0] == '#':
         name = name[1:]
-    driver.get(f"https://www.instagram.com/explore/tags/{name}/")
+
+    url = f"https://www.instagram.com/explore/tags/{name}/"
+    logger = Logger.getInstance()
+    logger.set_current_site(url)
+
+    driver.get(url)
 
 
 def change_site_person(name):
-    driver.get(f"https://www.instagram.com/{name}/")
+    url = f"https://www.instagram.com/{name}/"
+    logger = Logger.getInstance()
+    logger.set_current_site(url)
+
+    driver.get(url)
 
 
 def change_site_main():
-    driver.get("https://www.instagram.com")
+    url = "https://www.instagram.com"
+    logger = Logger.getInstance()
+    logger.set_current_site(url)
+
+    driver.get(url)
 
     # Omitting instagram dialog about notifications, if present
     try:
@@ -222,7 +253,11 @@ def change_site_profile():
     try:
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "be6sR")))
     except NoSuchElementException:
-        pass    
+        pass
+
+    url = driver.current_url
+    logger = Logger.getInstance()
+    logger.set_current_site(url)
 
 
 def change_site(name=""):
@@ -324,7 +359,12 @@ def unfollow(post):
 def get_followers_count():
     change_site_profile()
     followers_div = driver.find_element_by_css_selector('a.-nal3[href*="followers"]')
-    return int(followers_div.find_element_by_css_selector("span.g47SY").text)
+
+    followers = int(followers_div.find_element_by_css_selector("span.g47SY").text)
+    logger = Logger.getInstance()
+    logger.set_followers(followers)
+
+    return followers
 
 
 def get_followers():
@@ -364,6 +404,9 @@ def get_followers():
 
 
 def unfollow_in_profile():
+
+    logger = Logger.getInstance()
+    logger.set_bot_status(BotStatus.UNFOLLOWING_IN_PROFILE)
 
     # Get count of people you're following
     global followings
@@ -409,10 +452,6 @@ def unfollow_in_profile():
     # While limit is not reached unfollow
     while not unfollow_limit:
 
-        if config.data.verbose:
-            print("Last 24H:", "LIKES:", statistics.get(statistics.Data.LIKES, hours=24), "COMMENTS:", statistics.get(statistics.Data.COMMENTS, hours=24), "FOLLOWS:", statistics.get(statistics.Data.FOLLOWS, hours=24), "UNFOLLOWS:", statistics.get(statistics.Data.UNFOLLOWS, hours=24))
-            print("Last 1H:", "LIKES:", statistics.get(statistics.Data.LIKES), "COMMENTS:", statistics.get(statistics.Data.COMMENTS), "FOLLOWS:", statistics.get(statistics.Data.FOLLOWS), "UNFOLLOWS:", statistics.get(statistics.Data.UNFOLLOWS))
-
         # If unfollow_not_followers_first find following that doesn't follow you, else random
         if config.data.unfollow_non_followers_first:
             following = random.choice(following_list)
@@ -448,6 +487,10 @@ def unfollow_in_profile():
     
 
 def work_on_site():
+
+    logger = Logger.getInstance()
+    logger.set_bot_status(BotStatus.RUNNING)
+
     error = False
     gonna_change_site = False
     is_limit_reached = False
@@ -457,10 +500,6 @@ def work_on_site():
     # While ERROR or ChangeSite or LimitReached
     while (not error) and (not gonna_change_site) and (not is_limit_reached):
         config.handle_args()
-
-        if config.data.verbose:
-            print("Last 24H:", "LIKES:", statistics.get(statistics.Data.LIKES, hours=24), "COMMENTS:", statistics.get(statistics.Data.COMMENTS, hours=24), "FOLLOWS:", statistics.get(statistics.Data.FOLLOWS, hours=24), "UNFOLLOWS:", statistics.get(statistics.Data.UNFOLLOWS, hours=24))
-            print("Last 1H:", "LIKES:", statistics.get(statistics.Data.LIKES), "COMMENTS:", statistics.get(statistics.Data.COMMENTS), "FOLLOWS:", statistics.get(statistics.Data.FOLLOWS), "UNFOLLOWS:", statistics.get(statistics.Data.UNFOLLOWS))
 
         posts += driver.find_elements_by_class_name("v1Nh3")
         posts = remove_duplicates(posts)
