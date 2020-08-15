@@ -457,17 +457,19 @@ def unfollow_in_profile():
         
         following_list = following_list_div.find_elements_by_tag_name("li")
 
+    # Make a list of nonfollowings
+    if config.data.unfollow_non_followers_first:
+        non_followings = []
+        for div in following_list:
+            if div.find_element_by_class_name("FPmhX").text.strip() not in followers_names:
+                non_followings.append(div)
     
     # While limit is not reached unfollow
     while not unfollow_limit:
 
         # If unfollow_not_followers_first find following that doesn't follow you, else random
-        if config.data.unfollow_non_followers_first:
-            following = random.choice(following_list)
-            while following.find_element_by_class_name("FPmhX").text.strip() in followers_names:
-                following = random.choice(following_list)
-
-            following_list.pop(following_list.index(following))
+        if config.data.unfollow_non_followers_first and len(non_followings) > 0:
+            following = non_followings.pop(random.randint(0, len(non_followings)-1))
         else:
             following = following_list.pop(random.randint(0, len(following_list)-1))
         
