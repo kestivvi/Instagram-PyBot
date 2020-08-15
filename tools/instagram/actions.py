@@ -137,12 +137,15 @@ def log_in():
             continue
         loaded = True
     
+    time.sleep(random.uniform(0.5,2))
+    
     # Typing in credentials and logging in
     credentials = get_credentials()
     type_in(username_field, credentials[0])
+    time.sleep(random.uniform(0.5,2))
     type_in(password_field, credentials[1])
     del credentials
-
+    time.sleep(random.uniform(0.5,2))
     password_field.send_keys(Keys.RETURN)
 
     # Checking if credentials has been correct
@@ -170,6 +173,7 @@ def log_in():
 
 def get_following_count():
     change_site_profile()
+    time.sleep(random.uniform(0.5,2))
     following_div = driver.find_element_by_css_selector('a[href*="following"]')
     global followings
     followings = int(following_div.find_element_by_css_selector("span.g47SY").text)
@@ -229,22 +233,24 @@ def change_site_main():
         not_now_button = WebDriverWait(driver, 1).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div[role=dialog] button.HoLwm"))
             )
+        time.sleep(random.uniform(0.5,2))
         not_now_button.click()
     except:
         pass
 
 
 def change_site_profile():
-
+    time.sleep(random.uniform(0.5,2))
     # Clicking on the profile image
     profile_div = driver.find_element_by_css_selector("div.Fifk5 > span[role=link]")
     profile_div.click()
-    
+    time.sleep(random.uniform(0.5,2))
     # Clicking first option "profile"
     try:
         profile_button = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div._01UL2 > a.-qQT3"))
             )
+        time.sleep(random.uniform(0.5,2))
         profile_button.click()
     except:
         pass
@@ -254,7 +260,7 @@ def change_site_profile():
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "be6sR")))
     except NoSuchElementException:
         pass
-
+    
     url = driver.current_url
     logger = Logger.getInstance()
     logger.set_current_site(url)
@@ -359,7 +365,7 @@ def unfollow(post):
 def get_followers_count():
     change_site_profile()
     followers_div = driver.find_element_by_css_selector('a.-nal3[href*="followers"]')
-
+    time.sleep(random.uniform(0.5,2))
     followers = int(followers_div.find_element_by_css_selector("span.g47SY").text)
     logger = Logger.getInstance()
     logger.set_followers(followers)
@@ -370,10 +376,10 @@ def get_followers_count():
 def get_followers():
     change_site_profile()
     followers_count = get_followers_count()
-
+    time.sleep(random.uniform(0.5,2))
     followers_button = driver.find_element_by_css_selector('a.-nal3[href*="followers"]')
     followers_button.click()
-
+    time.sleep(random.uniform(0.5,2))
     # Find div where all followers are in list
     followers_list_div = driver.find_element_by_class_name("PZuss")
 
@@ -382,12 +388,13 @@ def get_followers():
     followers_list = followers_list_div.find_elements_by_tag_name("li")
     while count != followers_count:
         driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastChild.scrollIntoView()')
-        
+        time.sleep(random.uniform(0.5,2))
+
         # Wait for content to load
         last_child = driver.find_element_by_css_selector(".PZuss:last-child")
-        time.sleep(0.2)
+        time.sleep(random.uniform(0.5,2))
         while last_child != driver.find_element_by_css_selector(".PZuss:last-child"):
-            time.sleep(0.2)
+            time.sleep(random.uniform(0.5,2))
             last_child = driver.find_element_by_css_selector(".PZuss:last-child")
 
         followers_list = followers_list_div.find_elements_by_tag_name("li")
@@ -397,7 +404,8 @@ def get_followers():
     followers_names = []
     for div in followers_list:
         followers_names.append(div.find_element_by_class_name("FPmhX").text.strip())
-    
+
+    time.sleep(random.uniform(0.5,2))
     change_site_main()
 
     return followers_names
@@ -425,29 +433,30 @@ def unfollow_in_profile():
         followers_names = get_followers()
     
     change_site_profile()
+    time.sleep(random.uniform(0.5,2))
 
     # Find button
     following_div = driver.find_element_by_css_selector('a[href*="following"]')
+    time.sleep(random.uniform(0.5,2))
     following_div.click()
 
     # Find div where all followers are in list
     following_list_div = driver.find_element_by_class_name("PZuss")
 
     # Scroll all the way down
-    count = 0
     following_list = following_list_div.find_elements_by_tag_name("li")
-    while count != followings:
+    while len(following_list) < followings-1:
         driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastChild.scrollIntoView()')
 
         # Wait for content to load
         last_child = driver.find_element_by_css_selector(".PZuss:last-child")
-        time.sleep(0.2)
+        time.sleep(random.uniform(0.5,2))
         while last_child != driver.find_element_by_css_selector(".PZuss:last-child"):
-            time.sleep(0.2)
+            time.sleep(random.uniform(0.5,2))
             last_child = driver.find_element_by_css_selector(".PZuss:last-child")
         
         following_list = following_list_div.find_elements_by_tag_name("li")
-        count = len(following_list)
+
     
     # While limit is not reached unfollow
     while not unfollow_limit:
@@ -465,10 +474,12 @@ def unfollow_in_profile():
         # Find unfollow button
         unfollow_button = following.find_element_by_tag_name("button")
         unfollow_button.click()
+        time.sleep(random.uniform(0.5,2))
 
         # Find confirmation unfollow button
         red_unfollow_button = driver.find_element_by_class_name("-Cab_")
         red_unfollow_button.click()
+        time.sleep(random.uniform(0.5,2))
 
         check_restrictness()
         
@@ -504,6 +515,7 @@ def work_on_site():
         posts += driver.find_elements_by_class_name("v1Nh3")
         posts = remove_duplicates(posts)
         post = posts[post_nr]
+        time.sleep(random.uniform(0.5,2))
 
         try:
             post.click()
