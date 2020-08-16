@@ -16,7 +16,7 @@ class _CONFIG_DEFAULT:
     sites_file = "./sample/sites.txt"
 
     json_config = "./sample/config.json"
-    statistics_folder = "./sample/statistics/"
+    data_folder = "./sample/data/"
     # web_browser = ""
     web_browser_driver = ""
     headless = False
@@ -145,10 +145,10 @@ def handle_args():
                         default=config_default.json_config,
                         type=str)
 
-    parser.add_argument('-st', '--statistics_folder',
-                        help="""Folder where bot can save statistics data about likes, comments, follows, unfollows and errors.
+    parser.add_argument('-dt', '--data_folder',
+                        help="""Folder where bot can save data about likes, comments, follows, unfollows, errors and caches of variables.
                                 These are mandatory to bot works corectly.""",
-                        default=config_default.statistics_folder,
+                        default=config_default.data_folder,
                         type=str)
     
 

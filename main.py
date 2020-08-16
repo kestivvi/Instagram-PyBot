@@ -15,13 +15,10 @@ def main():
     while True:
         config.handle_args()
         instagram.actions.driver_init()
+        instagram.actions.get_following_count()
 
         # Log In
         instagram.actions.log_in()
-
-        try: instagram.actions.unfollow_in_profile()
-        except instagram.errors.ActionBlock:
-            pass
 
         SITES = []
         with open(Path(config.data.sites_file), encoding="UTF-8") as f:
@@ -39,6 +36,10 @@ def main():
                 instagram.actions.driver.find_element_by_tag_name("body").send_keys(Keys.ESCAPE)
                 time.sleep(random.uniform(0.5,2))
                 break
+        
+        try: instagram.actions.unfollow_in_profile()
+        except instagram.errors.ActionBlock:
+            pass
             
         instagram.actions.log_out()
         instagram.actions.driver_close()

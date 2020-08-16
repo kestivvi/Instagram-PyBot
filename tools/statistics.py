@@ -18,7 +18,7 @@ class Data():
 # FUNCTIONS
 
 def check_paths():
-    data_path = Path(config.data.statistics_folder)
+    data_path = Path(config.data.data_folder)
     likes_file = data_path / "likes.csv"
     comments_file = data_path / "comments.csv"
     follows_file = data_path / "follows.csv"
@@ -51,7 +51,7 @@ def check_paths():
 
 def get(data_type=Data.LIKES, hours=1):
     check_paths()
-    data_path = Path(config.data.statistics_folder)
+    data_path = Path(config.data.data_folder)
     filepath = data_path / (data_type + ".csv")
     df = pandas.read_csv(filepath, index_col=0, parse_dates=[1])
 
@@ -66,7 +66,7 @@ def get(data_type=Data.LIKES, hours=1):
 
 def update(data_type=Data.LIKES, amount=1, message=""):
     check_paths()
-    data_path = Path(config.data.statistics_folder)
+    data_path = Path(config.data.data_folder)
     filepath = data_path / (data_type + ".csv")
     df = pandas.read_csv(filepath, index_col=0, parse_dates=[1])
 

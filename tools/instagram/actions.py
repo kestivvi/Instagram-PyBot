@@ -155,7 +155,7 @@ def log_in():
 def get_username():
     
     # Check cache
-    filename = Path(config.data.statistics_folder) / "usernames.json"
+    filename = Path(config.data.data_folder) / "usernames.json"
     usernames = {}
     login_name = config.get_credentials()[0]
 
