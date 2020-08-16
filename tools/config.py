@@ -1,5 +1,6 @@
 import argparse, json, sys
 from path import Path
+from tools.instagram import actions
 
 class _CONFIG_DEFAULT:
     ################################
@@ -66,6 +67,7 @@ def check_json_config():
     else:
         print('[WARNING]: Specified json config file is not exist.')
         return _CONFIG_DEFAULT
+
 
 
 def handle_args():
@@ -305,4 +307,24 @@ def handle_args():
     if data.web_browser_driver == "":
         print("[ERROR]: web_browser_driver parameter wasn't specified in neither config file nor command line arguments.")
         exit()
+
+
+def get_credentials():
+    username = ""
+    password = ""
+
+    if not Path(data.credential_file).exists():
+        print("[ERROR]: File with credentials is not exist")
+        exit()
+
+    with open(Path(data.credential_file), 'r', encoding="utf-8") as f:
+        lines = f.readlines()
+        username = lines[0].strip()
+        password = lines[1].strip()
+
+    if username == "" and password == "":
+        print("[ERROR]: File with credentials is empty. First line expected login. Second line expected password.")
+        exit()
+
+    return (username, password)
 

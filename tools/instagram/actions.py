@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
-import time, random, datetime
+import time, random, datetime, json
 from path import Path
 from .. import statistics, config
 from ..logger import Logger, BotStatus
@@ -13,25 +13,6 @@ from . import errors
 
 ###############################
 # FUNCTIONS
-
-def get_credentials():
-    username = ""
-    password = ""
-
-    if not Path(config.data.credential_file).exists():
-        print("[ERROR]: File with credentials is not exist")
-        exit()
-
-    with open(Path(config.data.credential_file), 'r', encoding="utf-8") as f:
-        lines = f.readlines()
-        username = lines[0].strip()
-        password = lines[1].strip()
-
-    if username == "" and password == "":
-        print("[ERROR]: File with credentials is empty. First line expected login. Second line expected password.")
-        exit()
-
-    return (username, password)
 
 
 def get_comments():
@@ -140,7 +121,7 @@ def log_in():
     time.sleep(random.uniform(0.5,2))
     
     # Typing in credentials and logging in
-    credentials = get_credentials()
+    credentials = config.get_credentials()
     type_in(username_field, credentials[0])
     time.sleep(random.uniform(0.5,2))
     type_in(password_field, credentials[1])
@@ -169,6 +150,30 @@ def log_in():
 
     # Ommitting instagram question dialog about saving credentials
     change_site_main()
+
+
+def get_username():
+    
+    # Check cache
+    filename = Path(config.data.statistics_folder) / "usernames.json"
+    usernames = {}
+    login_name = config.get_credentials()[0]
+
+    if filename.exists():
+        with open(filename, "r", encoding="UTF-8") as f:
+            usernames = json.load(f)
+            if login_name in usernames:
+                return usernames[login_name]
+
+    # Find username
+    change_site_profile_manually()
+    usernames[login_name] = driver.find_element_by_class_name("_7UhW9").text.strip()
+
+    # Append to cache
+    with open(filename, "w", encoding="UTF-8") as f:
+        json.dump(usernames, f)
+
+    return usernames[login_name]
 
 
 def get_following_count():
@@ -240,6 +245,13 @@ def change_site_main():
 
 
 def change_site_profile():
+    url = f"https://www.instagram.com/{get_username()}/"
+    driver.get(url)
+    logger = Logger.getInstance()
+    logger.set_current_site(url)
+
+
+def change_site_profile_manually():
     time.sleep(random.uniform(0.5,2))
     # Clicking on the profile image
     profile_div = driver.find_element_by_css_selector("div.Fifk5 > span[role=link]")
@@ -264,7 +276,6 @@ def change_site_profile():
     url = driver.current_url
     logger = Logger.getInstance()
     logger.set_current_site(url)
-
 
 def change_site(name=""):
     if name[0] == '#':
