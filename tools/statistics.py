@@ -53,7 +53,9 @@ def get(data_type=Data.LIKES, hours=1):
     check_paths()
     data_path = Path(config.data.data_folder)
     filepath = data_path / (data_type + ".csv")
-    df = pandas.read_csv(filepath, index_col=0, parse_dates=[1])
+
+    try: df = pandas.read_csv(filepath, index_col=0, parse_dates=[1])
+    except pandas.errors.EmptyDataError: return -1
 
     data = 0
     p = datetime.datetime.now() - datetime.timedelta(hours=hours)
