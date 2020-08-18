@@ -1,5 +1,5 @@
 from selenium.webdriver.common.keys import Keys
-import random, time
+import random, time, argparse, shutil
 from tools import instagram
 from tools.instagram import actions, errors
 from tools import statistics, config
@@ -7,13 +7,56 @@ from path import Path
 from tools.logger import Logger
 
 
+def handle_args():
+    parser = argparse.ArgumentParser(prog="Instagram PyBot",
+                                     usage='%(prog)s [options]',
+                                     description="""Instagram Bot written in Python and Selenium.
+                                                    It can like, comment, follow and unfollow.""")
+    parser.version = '0.1.0'
+
+    subparsers = parser.add_subparsers(help="commands")
+
+    init_parser = subparsers.add_parser("init", help="Init a folder with settings for bot")
+    init_parser.set_defaults(func=init)
+    init_parser.add_argument("dirpath", help="Path to folder where setting files for bot will be initiated")
+
+    start_parser = subparsers.add_parser("start", help="Start a bot")
+    start_parser.set_defaults(func=start)
+    start_parser.add_argument("dirpath", help="Path to folder with bot settings and data") 
+
+    args = parser.parse_args()
+
+    config.set_dirpath(args.dirpath)
+
+    return args
+
+
 def main():
-    config.handle_args()
+    args = handle_args()
+
+    # Start init or start function
+    args.func(args)
+
+
+def init(args):
+    shutil.copytree("./sample", args.dirpath)
+    
+
+def start(args):
+    if not Path(args.dirpath).exists():
+        print("[ERROR] Specified dirpath does not exist!")
+        exit()
+
+    config.check_json_config(args.dirpath)
+
+    if config.data.web_browser_driver == "":
+        print("[ERROR]: web_browser_driver parameter wasn't specified in neither config file nor command line arguments.")
+        exit()
+
     Logger.getInstance()
     
-    # While True
     while True:
-        config.handle_args()
+        config.check_json_config(args.dirpath)
         instagram.actions.driver_init()
 
         # Log In

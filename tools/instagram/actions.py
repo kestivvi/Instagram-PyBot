@@ -501,7 +501,7 @@ def unfollow_in_profile():
         followings -= 1
         
         # Check config and limit
-        config.handle_args()
+        config.check_json_config(config.dirpath)
         unfollow_limit = not (config.data.chance_of_unfollow > 0 
             and statistics.get(statistics.Data.UNFOLLOWS, hours=1) < config.data.max_unfollows_per_hour 
             and statistics.get(statistics.Data.UNFOLLOWS, hours=24) < config.data.max_unfollows_per_day
@@ -523,7 +523,7 @@ def work_on_site():
     posts = []
     # While ERROR or ChangeSite or LimitReached
     while (not error) and (not gonna_change_site) and (not is_limit_reached):
-        config.handle_args()
+        config.check_json_config(config.dirpath)
 
         posts += driver.find_elements_by_class_name("v1Nh3")
         posts = remove_duplicates(posts)
