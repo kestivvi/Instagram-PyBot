@@ -15,10 +15,11 @@ def main():
     while True:
         config.handle_args()
         instagram.actions.driver_init()
-        instagram.actions.get_following_count()
 
         # Log In
         instagram.actions.log_in()
+        instagram.actions.get_following_count()
+        instagram.actions.get_followers_count()
 
         SITES = []
         with open(Path(config.data.sites_file), encoding="UTF-8") as f:
