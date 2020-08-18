@@ -8,7 +8,7 @@ import time, random, datetime, json
 from path import Path
 from .. import statistics, config
 from ..logger import Logger, BotStatus
-from . import errors
+from . import exceptions
 
 
 ###############################
@@ -38,7 +38,7 @@ def check_restrictness():
 
         statistics.update(statistics.Data.ERRORS, message="Instagram ActionBlock error")
         
-        raise errors.ActionBlock
+        raise exceptions.ActionBlock
     except NoSuchElementException:
         pass
 
@@ -135,7 +135,7 @@ def log_in():
             EC.presence_of_element_located((By.ID, "slfErrorAlert"))
         )
         print("[ERROR]: Wrong Credentials! Check if username and password are correct!")
-        raise errors.WrongCredentials
+        raise exceptions.WrongCredentials
     except:
         pass
 
@@ -515,14 +515,12 @@ def work_on_site():
     logger = Logger.getInstance()
     logger.set_bot_status(BotStatus.RUNNING)
 
-    error = False
     gonna_change_site = False
-    is_limit_reached = False
 
     post_nr = 0
     posts = []
     # While ERROR or ChangeSite or LimitReached
-    while (not error) and (not gonna_change_site) and (not is_limit_reached):
+    while not gonna_change_site:
         config.check_json_config(config.dirpath)
 
         posts += driver.find_elements_by_class_name("v1Nh3")
@@ -587,9 +585,7 @@ def work_on_site():
             gonna_change_site = True
         
         if like_limit:
-            is_limit_reached = True
-            return is_limit_reached
-        
+            raise exceptions.LimitReached
 
         time.sleep(random.uniform(0.5,2))
     return False

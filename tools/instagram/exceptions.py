@@ -3,3 +3,6 @@ class ActionBlock(Exception):
 
 class WrongCredentials(Exception):
     pass
+
+class LimitReached(Exception):
+    pass

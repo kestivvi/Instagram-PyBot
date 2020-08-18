@@ -1,7 +1,7 @@
 from selenium.webdriver.common.keys import Keys
 import random, time, argparse, shutil
 from tools import instagram
-from tools.instagram import actions, errors
+from tools.instagram import actions, exceptions
 from tools import statistics, config
 from path import Path
 from tools.logger import Logger
@@ -73,16 +73,16 @@ def start(args):
             instagram.actions.change_site(site)
 
             try: 
-                limit_reached = instagram.actions.work_on_site()
-                if limit_reached:
-                    break
-            except instagram.errors.ActionBlock: 
+                instagram.actions.work_on_site()
+            except instagram.exceptions.LimitReached:
+                break
+            except instagram.exceptions.ActionBlock: 
                 instagram.actions.driver.find_element_by_tag_name("body").send_keys(Keys.ESCAPE)
                 time.sleep(random.uniform(0.5,2))
                 break
         
         try: instagram.actions.unfollow_in_profile()
-        except instagram.errors.ActionBlock:
+        except instagram.exceptions.ActionBlock:
             pass
             
         instagram.actions.log_out()
