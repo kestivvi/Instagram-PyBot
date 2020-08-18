@@ -1,14 +1,4 @@
 {
-    "credential_file":"./sample/secret.txt",
-    "login":"",
-    "password":"",
-
-    "comments_file":"./sample/comments.txt",
-    "emojis_file":"./sample/emojis.txt",
-    "sites_file":"./sample/sites.txt",
-
-    "json_config":"./sample/config.json",
-    "data_folder":"./sample/data/",
     "web_browser_driver":"",
     "headless":false,
 
