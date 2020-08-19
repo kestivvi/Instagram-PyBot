@@ -93,7 +93,7 @@ def start(args):
         
         try: instagram.actions.unfollow_in_profile()
         except instagram.exceptions.ActionBlock:
-            pass
+            actions.change_site_main()
             
         instagram.actions.log_out()
         instagram.actions.driver_close()

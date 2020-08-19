@@ -29,6 +29,13 @@ def get_emojis():
     return emojis
 
 
+def get_following_whitelist():
+    whitelist = []
+    with open(Path(config.data.following_whitelist), 'r', encoding="utf-8") as f:
+        whitelist = [line.strip() for line in f.readlines()]
+    return whitelist
+
+
 def check_restrictness():
     try:
         driver.find_element_by_css_selector("div[role=dialog]")
@@ -466,13 +473,24 @@ def unfollow_in_profile():
         
         following_list = following_list_div.find_elements_by_tag_name("li")
 
+    # Apply whitelist
+    whitelist = get_following_whitelist()
+    new_following_list = []
+    for div in following_list:
+        name = div.find_element_by_class_name("FPmhX").text.strip()
+        if name not in whitelist:
+            new_following_list.append(div)
+    
+    following_list = new_following_list
+
     # Make a list of nonfollowings
     if config.data.unfollow_non_followers_first:
         non_followings = []
         for div in following_list:
-            if div.find_element_by_class_name("FPmhX").text.strip() not in followers_names:
+            name = div.find_element_by_class_name("FPmhX").text.strip()
+            if name not in followers_names:
                 non_followings.append(div)
-    
+
     # While limit is not reached unfollow
     while not unfollow_limit:
 
