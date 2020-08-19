@@ -5,20 +5,13 @@ from path import Path
 
 def set_dirpath(x):
     global dirpath
-    dirpath = x
+    dirpath = Path(x)
 
 
-def check_json_config(bot_folder):
-    """
-        Load or refresh settings from config.json
+def check_json_config():
+    """Load or refresh settings from config.json"""
 
-        
-        :param bot_folder: Path to folder with config.json and other bot data
-    """
-    
-    bot_folder = Path(bot_folder)
-
-    json_path = bot_folder / "config.json"
+    json_path = dirpath / "config.json"
     
     if json_path.exists():
         with open(json_path) as f:
@@ -26,11 +19,11 @@ def check_json_config(bot_folder):
             # Convert dict from json to namespace object
             new_data = argparse.Namespace(**json.load(f))
 
-            new_data.data_folder        = bot_folder / "data/"
-            new_data.credentials_file   = bot_folder / "secret.txt"
-            new_data.sites_file         = bot_folder / "sites.txt"
-            new_data.comments_file      = bot_folder / "comments.txt"
-            new_data.emojis_file        = bot_folder / "emojis.txt"
+            new_data.data_folder        = dirpath / "data/"
+            new_data.credentials_file   = dirpath / "secret.txt"
+            new_data.sites_file         = dirpath / "sites.txt"
+            new_data.comments_file      = dirpath / "comments.txt"
+            new_data.emojis_file        = dirpath / "emojis.txt"
 
             global data
             data = new_data

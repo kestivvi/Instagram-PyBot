@@ -57,7 +57,7 @@ def start(args):
         print("[ERROR] Specified dirpath does not exist!")
         exit()
 
-    config.check_json_config(args.dirpath)
+    config.check_json_config()
 
     if config.data.web_browser_driver == "":
         print("[ERROR]: web_browser_driver parameter wasn't specified in neither config file nor command line arguments.")
@@ -66,7 +66,7 @@ def start(args):
     Logger.getInstance()
     
     while True:
-        config.check_json_config(args.dirpath)
+        config.check_json_config()
         instagram.actions.driver_init()
 
         # Log In
