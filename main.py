@@ -39,7 +39,17 @@ def main():
 
 
 def init(args):
-    shutil.copytree("./sample", args.dirpath)
+    if Path(args.dirpath).exists():
+
+        answer = input("Specified dirpath already exists in filesystem. All files from this folder will be deleted and replaced by default settings.\nDo you want to continue? y/[n]: ").strip().lower()
+
+        if answer == 'y' or answer == 'yes':
+            shutil.rmtree(args.dirpath)
+        else:
+            exit()
+    
+    shutil.copytree(Path(__file__).parent / "sample", args.dirpath)
+
     
 
 def start(args):
