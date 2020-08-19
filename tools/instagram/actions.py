@@ -395,9 +395,8 @@ def get_followers():
     followers_list_div = driver.find_element_by_class_name("PZuss")
 
     # Scroll all the way down
-    count = 0
     followers_list = followers_list_div.find_elements_by_tag_name("li")
-    while count != followers_count:
+    while len(followers_list) < followers_count-1:
         driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastChild.scrollIntoView()')
         time.sleep(random.uniform(0.5,2))
 
@@ -409,7 +408,6 @@ def get_followers():
             last_child = driver.find_element_by_css_selector(".PZuss:last-child")
 
         followers_list = followers_list_div.find_elements_by_tag_name("li")
-        count = len(followers_list)
     
     # Get the names
     followers_names = []
