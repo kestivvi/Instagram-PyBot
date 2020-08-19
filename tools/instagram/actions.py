@@ -422,7 +422,6 @@ def get_followers():
         followers_names.append(div.find_element_by_class_name("FPmhX").text.strip())
 
     time.sleep(random.uniform(0.5,2))
-    change_site_main()
 
     return followers_names
 
@@ -522,8 +521,6 @@ def unfollow_in_profile():
             and statistics.get(statistics.Data.UNFOLLOWS, hours=1) < config.data.max_unfollows_per_hour 
             and statistics.get(statistics.Data.UNFOLLOWS, hours=24) < config.data.max_unfollows_per_day
             and followings > config.data.min_of_followings)
-    
-    change_site_main()
     
 
 def work_on_site():

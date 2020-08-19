@@ -1,5 +1,4 @@
-from selenium.webdriver.common.keys import Keys
-import random, time, argparse, shutil
+import random, argparse, shutil
 from tools import instagram
 from tools.instagram import actions, exceptions
 from tools import statistics, config
@@ -87,8 +86,7 @@ def start(args):
             except instagram.exceptions.LimitReached:
                 break
             except instagram.exceptions.ActionBlock: 
-                instagram.actions.driver.find_element_by_tag_name("body").send_keys(Keys.ESCAPE)
-                time.sleep(random.uniform(0.5,2))
+                actions.change_site_main()
                 break
         
         try: instagram.actions.unfollow_in_profile()
@@ -98,5 +96,6 @@ def start(args):
         instagram.actions.log_out()
         instagram.actions.driver_close()
         instagram.actions.sleep(config.data.checking_frequency)
+
 
 main()
