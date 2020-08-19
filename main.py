@@ -73,26 +73,37 @@ def start(args):
         instagram.actions.get_following_count()
         instagram.actions.get_followers_count()
 
-        SITES = []
-        with open(Path(config.data.sites_file), encoding="UTF-8") as f:
-            SITES = [line.strip() for line in f.readlines()]
-
-        while len(SITES) > 0:
-            site = SITES.pop(random.randint(0, len(SITES)-1))
-            instagram.actions.change_site(site)
-
-            try: 
-                instagram.actions.work_on_site()
+        def run():
+            try: instagram.actions.like_likelist(3)
             except instagram.exceptions.LimitReached:
-                break
+                return
             except instagram.exceptions.ActionBlock: 
                 actions.change_site_main()
-                break
-        
-        try: instagram.actions.unfollow_in_profile()
-        except instagram.exceptions.ActionBlock:
-            actions.change_site_main()
+                return
+
+            SITES = []
+            with open(Path(config.data.sites_file), encoding="UTF-8") as f:
+                SITES = [line.strip() for line in f.readlines()]
+
+            while len(SITES) > 0:
+                site = SITES.pop(random.randint(0, len(SITES)-1))
+                instagram.actions.change_site(site)
+
+                try: 
+                    instagram.actions.work_on_site()
+                except instagram.exceptions.LimitReached:
+                    return
+                except instagram.exceptions.ActionBlock: 
+                    actions.change_site_main()
+                    return
             
+            try: instagram.actions.unfollow_in_profile()
+            except instagram.exceptions.ActionBlock:
+                actions.change_site_main()
+                return
+            
+        run()
+        
         instagram.actions.log_out()
         instagram.actions.driver_close()
         instagram.actions.sleep(config.data.checking_frequency)

@@ -523,7 +523,7 @@ def unfollow_in_profile():
             and followings > config.data.min_of_followings)
     
 
-def work_on_site():
+def work_on_site(post_limit=-1, like_chance=1, comment_chance=1, follow_chance=1, unfollow_chance=1):
 
     logger = Logger.getInstance()
     logger.set_bot_status(BotStatus.RUNNING)
@@ -533,7 +533,7 @@ def work_on_site():
     post_nr = 0
     posts = []
     # While ERROR or ChangeSite or LimitReached
-    while not gonna_change_site:
+    while not gonna_change_site and (post_limit == -1 or post_nr < post_limit):
         config.check_json_config()
 
         posts += driver.find_elements_by_class_name("v1Nh3")
@@ -568,25 +568,27 @@ def work_on_site():
         unfollow_limit = ((config.data.max_unfollows_per_hour != -1 and statistics.get(statistics.Data.UNFOLLOWS, hours=1) >= config.data.max_unfollows_per_hour)
                       or (config.data.max_unfollows_per_hour != -1 and statistics.get(statistics.Data.UNFOLLOWS, hours=24) >= config.data.max_unfollows_per_hour))
         
+        chance = random.random()
+
         # like
-        if not like_limit and random.random() < config.data.chance_of_like:
+        if not like_limit and chance < config.data.chance_of_like and chance < like_chance:
             like(post_dialog)
             time.sleep(random.uniform(0.5,2))
 
         # if liked:
             # comment
-            if not comment_limit and random.random() < config.data.chance_of_comment:
+            if not comment_limit and chance < config.data.chance_of_comment and chance < comment_chance:
                 comment(post_dialog)
                 time.sleep(random.uniform(1,3))
 
             # follow
-            if not follow_limit and random.random() < config.data.chance_of_follow:
+            if not follow_limit and chance < config.data.chance_of_follow and chance < follow_chance:
                 follow(post_dialog)
                 time.sleep(random.uniform(0.5,2))
 
         else:
             # unfollow
-            if not unfollow_limit and random.random() < config.data.chance_of_unfollow:
+            if not unfollow_limit and chance < config.data.chance_of_unfollow and chance < unfollow_chance:
                 unfollow(post_dialog)
                 time.sleep(random.uniform(0.5,2))
         
@@ -602,6 +604,18 @@ def work_on_site():
 
         time.sleep(random.uniform(0.5,2))
     return False
+
+
+def like_likelist(how_many_post=3):
+    likelist = []
+
+    with open(config.data.likelist, "r", encoding="UTF-8") as f:
+        likelist = [line.strip() for line in f.readlines()]
+    
+    while len(likelist) > 0:
+        site = likelist.pop(random.randrange(0, len(likelist)))
+        change_site(site)
+        work_on_site(how_many_post, like_chance=1, comment_chance=0, follow_chance=0, unfollow_chance=0)
 
 
 def work_on():

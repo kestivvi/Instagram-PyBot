@@ -25,6 +25,7 @@ def check_json_config():
             new_data.comments_file      = dirpath / "comments.txt"
             new_data.emojis_file        = dirpath / "emojis.txt"
             new_data.following_whitelist= dirpath / "following_whitelist.txt"
+            new_data.likelist           = dirpath / "likelist.txt"
 
             global data
             data = new_data
