@@ -97,13 +97,13 @@ def start(args):
                     actions.change_site_main()
                     return
             
-            try: instagram.actions.unfollow_in_profile()
-            except instagram.exceptions.ActionBlock:
-                actions.change_site_main()
-                return
-            
         run()
+
+        try: instagram.actions.unfollow_in_profile()
+        except instagram.exceptions.ActionBlock:
+            instagram.actions.change_site_profile()
         
+        instagram.actions.change_site_profile()
         instagram.actions.log_out()
         instagram.actions.driver_close()
         instagram.actions.sleep(config.data.checking_frequency)

@@ -390,20 +390,12 @@ def get_followers_count():
 
     return followers
 
+def scroll_down(list_div):
+    count = 0
+    div_list = list_div.find_elements_by_tag_name("li")
+    while len(div_list) > count :
+        count = len(div_list)
 
-def get_followers():
-    change_site_profile()
-    followers_count = get_followers_count()
-    time.sleep(random.uniform(0.5,2))
-    followers_button = driver.find_element_by_css_selector('a.-nal3[href*="followers"]')
-    followers_button.click()
-    time.sleep(random.uniform(0.5,2))
-    # Find div where all followers are in list
-    followers_list_div = driver.find_element_by_class_name("PZuss")
-
-    # Scroll all the way down
-    followers_list = followers_list_div.find_elements_by_tag_name("li")
-    while len(followers_list) < followers_count-1:
         driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastChild.scrollIntoView()')
         time.sleep(random.uniform(0.5,2))
 
@@ -414,7 +406,22 @@ def get_followers():
             time.sleep(random.uniform(0.5,2))
             last_child = driver.find_element_by_css_selector(".PZuss:last-child")
 
-        followers_list = followers_list_div.find_elements_by_tag_name("li")
+        div_list = list_div.find_elements_by_tag_name("li")
+
+def get_followers():
+    change_site_profile()
+    time.sleep(random.uniform(0.5,2))
+
+    followers_button = driver.find_element_by_css_selector('a.-nal3[href*="followers"]')
+    followers_button.click()
+    time.sleep(random.uniform(0.5,2))
+
+    # Find div where all followers are in list
+    followers_list_div = driver.find_element_by_class_name("PZuss")
+
+    scroll_down(followers_list_div)
+
+    followers_list = followers_list_div.find_elements_by_tag_name("li")
     
     # Get the names
     followers_names = []
@@ -458,19 +465,9 @@ def unfollow_in_profile():
     # Find div where all followers are in list
     following_list_div = driver.find_element_by_class_name("PZuss")
 
-    # Scroll all the way down
-    following_list = following_list_div.find_elements_by_tag_name("li")
-    while len(following_list) < followings-1:
-        driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastChild.scrollIntoView()')
+    scroll_down(following_list_div)
 
-        # Wait for content to load
-        last_child = driver.find_element_by_css_selector(".PZuss:last-child")
-        time.sleep(random.uniform(0.5,2))
-        while last_child != driver.find_element_by_css_selector(".PZuss:last-child"):
-            time.sleep(random.uniform(0.5,2))
-            last_child = driver.find_element_by_css_selector(".PZuss:last-child")
-        
-        following_list = following_list_div.find_elements_by_tag_name("li")
+    following_list = following_list_div.find_elements_by_tag_name("li")
 
     # Apply whitelist
     whitelist = get_following_whitelist()
