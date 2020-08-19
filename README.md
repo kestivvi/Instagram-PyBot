@@ -35,7 +35,7 @@ In file with emojis, they should be listed each one (exactly one) in new line. B
 
 Then you can run:
 ```bash
-python main.py
+python main.py start ./sample
 ```
 
 ## License
