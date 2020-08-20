@@ -5,7 +5,7 @@ Instagram PyBot is my project to learn how to build web browser bots with Python
 Requirements:
 * Chrome/Chromium browser
 * chrome webdriver
-* Python 3+
+* Python 3.8.0+
 * module selenium
 * module pandas
 
