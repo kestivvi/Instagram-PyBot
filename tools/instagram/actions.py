@@ -314,6 +314,9 @@ def like(post):
 
 def comment(post):
     try:
+        comment_button = post.find_element_by_class_name("_15y0l")
+        comment_button.click()
+        
         textarea = post.find_element_by_class_name("Ypffh")
     
         text = random.choice(get_comments()) + " "
