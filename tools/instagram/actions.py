@@ -382,7 +382,7 @@ def unfollow(post):
 
 def get_followers_count():
     change_site_profile()
-    followers_div = driver.find_element_by_css_selector('a.-nal3[href*="followers"]')
+    followers_div = driver.find_element_by_css_selector('a[href*="followers"]')
     time.sleep(random.uniform(0.5,2))
     followers = int(followers_div.find_element_by_css_selector("span.g47SY").text)
     logger = Logger.getInstance()
@@ -419,7 +419,7 @@ def get_followers():
     change_site_profile()
     time.sleep(random.uniform(0.5,2))
 
-    followers_button = driver.find_element_by_css_selector('a.-nal3[href*="followers"]')
+    followers_button = driver.find_element_by_css_selector('a[href*="followers"]')
     followers_button.click()
     time.sleep(random.uniform(0.5,2))
 
