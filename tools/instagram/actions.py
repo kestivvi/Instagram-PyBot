@@ -3,7 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 import time, random, datetime, json
 from path import Path
 from .. import statistics, config
@@ -572,30 +572,34 @@ def work_on_site(post_limit=-1, like_chance=1, comment_chance=1, follow_chance=1
         unfollow_limit = ((config.data.max_unfollows_per_hour != -1 and statistics.get(statistics.Data.UNFOLLOWS, hours=1) >= config.data.max_unfollows_per_hour)
                       or (config.data.max_unfollows_per_hour != -1 and statistics.get(statistics.Data.UNFOLLOWS, hours=24) >= config.data.max_unfollows_per_hour))
         
-        chance = random.random()
+        def do_stuff():
+            chance = random.random()
 
-        # like
-        if not like_limit and chance < config.data.chance_of_like and chance < like_chance:
-            like(post_dialog)
-            time.sleep(random.uniform(0.5,2))
-
-        # if liked:
-            # comment
-            if not comment_limit and chance < config.data.chance_of_comment and chance < comment_chance:
-                comment(post_dialog)
-                time.sleep(random.uniform(1,3))
-
-            # follow
-            if not follow_limit and chance < config.data.chance_of_follow and chance < follow_chance:
-                follow(post_dialog)
+            # like
+            if not like_limit and chance < config.data.chance_of_like and chance < like_chance:
+                like(post_dialog)
                 time.sleep(random.uniform(0.5,2))
 
-        else:
-            # unfollow
-            if not unfollow_limit and chance < config.data.chance_of_unfollow and chance < unfollow_chance:
-                unfollow(post_dialog)
-                time.sleep(random.uniform(0.5,2))
+            # if liked:
+                # comment
+                if not comment_limit and chance < config.data.chance_of_comment and chance < comment_chance:
+                    comment(post_dialog)
+                    time.sleep(random.uniform(1,3))
+
+                # follow
+                if not follow_limit and chance < config.data.chance_of_follow and chance < follow_chance:
+                    follow(post_dialog)
+                    time.sleep(random.uniform(0.5,2))
+
+            else:
+                # unfollow
+                if not unfollow_limit and chance < config.data.chance_of_unfollow and chance < unfollow_chance:
+                    unfollow(post_dialog)
+                    time.sleep(random.uniform(0.5,2))
         
+        try: do_stuff()
+        except ElementNotInteractableException: pass
+
         # Back to site
         driver.find_element_by_tag_name("body").send_keys(Keys.ESCAPE)
         post_nr += 1
