@@ -401,6 +401,13 @@ def scroll_down(list_div):
 
         # Wait for content to load
         last_child = driver.find_element_by_css_selector(".PZuss:last-child")
+        try:
+            last_child = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".PZuss:last-child"))
+                )
+        except:
+            pass
+
         time.sleep(random.uniform(0.5,2))
         while last_child != driver.find_element_by_css_selector(".PZuss:last-child"):
             time.sleep(random.uniform(0.5,2))
