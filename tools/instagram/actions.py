@@ -5,7 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 import time, random, datetime, json
-from path import Path
+from pathlib import Path
 from .. import statistics, config
 from ..logger import Logger, BotStatus
 from . import exceptions

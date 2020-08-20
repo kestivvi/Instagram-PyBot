@@ -1,3 +1,2 @@
 selenium
 pandas
-path

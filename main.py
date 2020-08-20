@@ -2,7 +2,7 @@ import random, argparse, shutil
 from tools import instagram
 from tools.instagram import actions, exceptions
 from tools import statistics, config
-from path import Path
+from pathlib import Path
 from tools.logger import Logger
 
 

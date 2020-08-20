@@ -1,6 +1,6 @@
 from collections import namedtuple
 import argparse, json, functools
-from path import Path
+from pathlib import Path
 
 
 def set_dirpath(x):
