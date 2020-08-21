@@ -106,7 +106,7 @@ def start(args):
         instagram.actions.change_site_profile()
         instagram.actions.log_out()
         instagram.actions.driver_close()
-        instagram.actions.sleep(config.data.checking_frequency)
+        instagram.actions.sleep()
 
 
 main()

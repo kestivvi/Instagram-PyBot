@@ -56,17 +56,20 @@ def type_in(element, text):
         time.sleep(random.uniform(0.05, 0.2))
 
 
-def sleep(seconds, interval=1):
-    started_at = datetime.datetime.now()
-    to = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+def sleep(interval=1):
     logger = Logger.getInstance()
-    
-    while seconds > 0:
-        seconds -= interval
+    started_at = datetime.datetime.now()
+    time_to_sleep = config.data.checking_frequency
+
+    to = started_at + datetime.timedelta(seconds=time_to_sleep)
+    while datetime.datetime.now() < to:
+
         remaining = to - datetime.datetime.now()
         message = f"Sleeping : Started at {started_at.strftime('%H:%M:%S')}. Waiting to {to.strftime('%H:%M:%S')}. Remaining time: {str(remaining).split('.')[0]}"
-        logger.set_bot_status(message)    
+        logger.set_bot_status(message)
+
         time.sleep(interval)
+        to = started_at + datetime.timedelta(seconds=time_to_sleep)
 
 
 def remove_duplicates(arr):
