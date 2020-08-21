@@ -59,7 +59,7 @@ def type_in(element, text):
 def sleep(interval=1):
     logger = Logger.getInstance()
     started_at = datetime.datetime.now()
-    time_to_sleep = config.data.checking_frequency
+    time_to_sleep = random.randint(config.data.min_sleep_time, config.data.max_sleep_time)
 
     to = started_at + datetime.timedelta(seconds=time_to_sleep)
     while datetime.datetime.now() < to:

@@ -35,7 +35,8 @@ Then configure a bot settings, to do so enter directory you specified earlier. T
     * **web_browser_driver - You have to specify path to your chromedriver you have downloaded before.** 
     * headless - If true, browser will be opened in background and it won't be rendered on the screen.
     * verbose - If true, gives nice live dashboard with some stats.
-    * checking_frequency - Time in seconds between bot sessions, from bot logging out to bot logging in.
+    * min_sleep_time - The shortest time between the bot sessions, from logging out to logging in.
+    * max_sleep_time - The greatest time between the bot sessions, from logging out to logging in.
     * chances - Bot browsing posts have a chance to do specific things.
     * unfollow_non_followers_first - If true, while unfollowing people at the end of every session bot will be unfollowing people that doesn't follow you in the first place, then people that follow you.
     * min_of_followings - The lowest number of people you follow
