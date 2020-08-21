@@ -2,10 +2,10 @@
     "web_browser_driver":"",
     "headless":false,
 
-    "verbose":false,
-    "checking_frequency":1800,
+    "verbose":true,
+    "checking_frequency":3600,
 
-    "chance_of_change_site":0.03,
+    "chance_of_change_site":0.04,
     "chance_of_like":0.8,
     "chance_of_comment":0.05,
     "chance_of_follow":0.4,
@@ -22,6 +22,6 @@
 
     "max_likes_per_day":500,
     "max_comments_per_day":10,
-    "max_follows_per_day":75,
-    "max_unfollows_per_day":75
+    "max_follows_per_day":50,
+    "max_unfollows_per_day":50
 }
