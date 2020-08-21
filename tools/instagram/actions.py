@@ -521,6 +521,7 @@ def unfollow_in_profile():
         # Update statistics
         statistics.update(statistics.Data.UNFOLLOWS)
         followings -= 1
+        Logger.getInstance().set_followings(followings)
         
         # Check config and limit
         config.check_json_config()
