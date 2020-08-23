@@ -3,7 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
+from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException, JavascriptException
 import time, random, datetime, json
 from pathlib import Path
 from .. import statistics, config
@@ -399,11 +399,18 @@ def get_followers_count():
 def scroll_down(list_div):
     count = 0
     div_list = list_div.find_elements_by_tag_name("li")
+    
     while len(div_list) > count :
         count = len(div_list)
 
-        driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastChild.scrollIntoView()')
-        time.sleep(random.uniform(0.5,2))
+        # Try to scroll the last element into the view
+        error = True
+        while error:
+            try:
+                driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastChild.scrollIntoView()')
+                error = False
+            except JavascriptException:
+                pass
 
         # Wait for content to load
         last_child = None
@@ -414,10 +421,9 @@ def scroll_down(list_div):
         except:
             pass
 
-        time.sleep(random.uniform(0.5,2))
-        while last_child != driver.find_element_by_css_selector(".PZuss:last-child"):
-            time.sleep(random.uniform(0.5,2))
-            last_child = driver.find_element_by_css_selector(".PZuss:last-child")
+        while last_child != list_div.find_elements_by_tag_name("li")[-1]:
+            time.sleep(random.uniform(0.2,1.2))
+            last_child = list_div.find_elements_by_tag_name("li")[-1]
 
         div_list = list_div.find_elements_by_tag_name("li")
 
