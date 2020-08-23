@@ -482,7 +482,13 @@ def unfollow_in_profile():
     following_div.click()
 
     # Find div where all followers are in list
-    following_list_div = driver.find_element_by_class_name("PZuss")
+    error = True
+    while error:
+        try:
+            following_list_div = driver.find_element_by_class_name("PZuss")
+            error = False
+        except NoSuchElementException:
+            pass
 
     scroll_down(following_list_div)
 
