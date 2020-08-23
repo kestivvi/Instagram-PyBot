@@ -407,7 +407,7 @@ def scroll_down(list_div):
         error = True
         while error:
             try:
-                driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastChild.scrollIntoView()')
+                driver.execute_script(f'document.getElementsByClassName("PZuss")[0].lastElementChild.scrollIntoView()')
                 error = False
             except JavascriptException:
                 pass
