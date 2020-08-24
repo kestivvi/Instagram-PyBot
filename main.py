@@ -7,26 +7,27 @@ from tools.logger import Logger
 
 
 def handle_args():
+
+    # Define the program
     parser = argparse.ArgumentParser(prog="Instagram PyBot",
-                                     usage='%(prog)s [options]',
-                                     description="""Instagram Bot written in Python and Selenium.
-                                                    It can like, comment, follow and unfollow.""")
+                                     usage='python main.py <command> <dirpath>',
+                                     description="Instagram Bot written in Python and Selenium. It can like, comment, follow and unfollow.")
     parser.version = '0.1.0'
 
-    subparsers = parser.add_subparsers(help="commands")
+    # Define arguments
+    subparsers = parser.add_subparsers(metavar="COMMANDS:", dest="command", required=True)
 
-    init_parser = subparsers.add_parser("init", help="Init a folder with settings for bot")
+    init_parser = subparsers.add_parser("init", usage="python main.py init <dirpath>", help="Init a folder with settings for the bot")
     init_parser.set_defaults(func=init)
-    init_parser.add_argument("dirpath", help="Path to folder where setting files for bot will be initiated")
+    init_parser.add_argument("dirpath", help="Path to folder where setting files for the bot will be initiated")
 
-    start_parser = subparsers.add_parser("start", help="Start a bot")
+    start_parser = subparsers.add_parser("start", usage="python main.py start <dirpath>", help="Start the bot")
     start_parser.set_defaults(func=start)
     start_parser.add_argument("dirpath", help="Path to folder with bot settings and data") 
 
+    # Parse arguments
     args = parser.parse_args()
-
     config.set_dirpath(args.dirpath)
-
     return args
 
 
