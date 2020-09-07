@@ -61,7 +61,7 @@ def get(data_type=Data.LIKES, hours=1):
     p = datetime.datetime.now() - datetime.timedelta(hours=hours)
 
     for row in df.itertuples():
-        if row.date > p:
+        if datetime.datetime.strptime(str(row.date), '%Y-%m-%d %H:%M:%S.%f') > p:
             data += row.amount
     return data
     
