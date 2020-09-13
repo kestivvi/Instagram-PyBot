@@ -144,7 +144,7 @@ def log_in():
         WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.ID, "slfErrorAlert"))
         )
-        print("[ERROR]: Wrong Credentials! Check if username and password are correct!")
+        print("[ERROR]: Wrong Credentials or Poor Internet Connection! Check if username and password are correct!")
         raise exceptions.WrongCredentials
     except:
         pass
@@ -155,8 +155,7 @@ def log_in():
             EC.presence_of_element_located((By.CLASS_NAME, "s4Iyt"))
         )
     except:
-        print("[ERROR]: Page cannot load")
-        exit()
+        pass
 
     # Ommitting instagram question dialog about saving credentials
     change_site_main()
