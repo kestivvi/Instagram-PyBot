@@ -1,4 +1,4 @@
-import random, argparse, shutil
+import random, argparse, shutil, datetime
 from tools import instagram
 from tools.instagram import actions, exceptions
 from tools import statistics, config
@@ -67,8 +67,13 @@ def start(args):
     
     while True:
         config.check_json_config()
-        instagram.actions.driver_init()
 
+        if not (datetime.datetime.now().hour > config.data.start_hour and datetime.datetime.now().hour < config.data.end_hour):
+            actions.sleep()
+            continue
+
+        instagram.actions.driver_init()
+        
         # Log In
         instagram.actions.log_in()
         instagram.actions.get_following_count()

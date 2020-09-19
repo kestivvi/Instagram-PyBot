@@ -5,7 +5,9 @@
     "verbose":true,
     "min_sleep_time":3600,
     "max_sleep_time":4000,
-    
+
+    "start_hour":9,
+    "end_hour":23,
 
     "chance_of_change_site":0.04,
     "chance_of_like":0.8,
