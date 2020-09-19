@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException, JavascriptException
-import time, random, datetime, json
+import time, random, datetime, json, pickle
 from pathlib import Path
 from .. import statistics, config
 from ..logger import Logger, BotStatus
@@ -80,6 +80,71 @@ def remove_duplicates(arr):
 
     return result
 
+class SeleniumDriver(object):
+    def __init__(
+        self,
+        # list of websites to reuse cookies with
+        cookies_websites=["https://www.instagram.com/"]
+    ):
+        # chromedriver path
+        driver_path = config.data.web_browser_driver
+        # pickle file path to store cookies
+        cookies_file_path = Path(config.data.data_folder) / "cookies.pkl"
+
+        self.driver_path = driver_path
+        self.cookies_file_path = cookies_file_path
+        self.cookies_websites = cookies_websites
+        chrome_options = webdriver.ChromeOptions()
+
+        if config.data.headless:
+            chrome_options.headless = True
+
+        self.driver = webdriver.Chrome(
+            executable_path=self.driver_path,
+            options=chrome_options
+        )
+        try:
+            # load cookies for given websites
+            cookies = pickle.load(open(self.cookies_file_path, "rb"))
+            for website in self.cookies_websites:
+                self.driver.get(website)
+                for cookie in cookies:
+                    self.driver.add_cookie(cookie)
+                self.driver.refresh()
+        except Exception as e:
+            # it'll fail for the first time, when cookie file is not present
+            print(str(e))
+            print("Error loading cookies")
+
+    def save_cookies(self):
+        # save cookies
+        cookies = self.driver.get_cookies()
+        pickle.dump(cookies, open(self.cookies_file_path, "wb"))
+
+    def close_all(self):
+        # close all open tabs
+        if len(self.driver.window_handles) < 1:
+            return
+        for window_handle in self.driver.window_handles[:]:
+            self.driver.switch_to.window(window_handle)
+            self.driver.close()
+
+    def quit(self):
+        self.save_cookies()
+        self.close_all()
+        self.driver.quit()
+
+
+def is_logged_in():
+    change_site_main()
+    try:
+        password_field = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.NAME, "password"))
+        )
+    except:
+        return True
+    return False
+
 
 def driver_init():
     logger = Logger.getInstance()
@@ -87,14 +152,12 @@ def driver_init():
 
     if config.data.web_browser_driver == "" or not Path(config.data.web_browser_driver).exists():
         print("[ERROR]: Path to chrome webdriver not found. Check your config.json file.")
+        exit()
 
+    global selenium_object
+    selenium_object = SeleniumDriver()
     global driver
-    if config.data.headless:
-        options = webdriver.chrome.options.Options()
-        options.headless = True
-        driver = webdriver.Chrome(Path(config.data.web_browser_driver), options=options)
-    else:
-        driver = webdriver.Chrome(Path(config.data.web_browser_driver))
+    driver = selenium_object.driver
 
     driver.implicitly_wait(1)
 
@@ -102,60 +165,62 @@ def driver_init():
 def driver_close():
     logger = Logger.getInstance()
     logger.set_bot_status(BotStatus.CLOSING_DRIVER)
-    driver.quit()
+    selenium_object.quit()
 
 
 def log_in():
     logger = Logger.getInstance()
     logger.set_bot_status(BotStatus.LOGGING_IN)
 
-    # Loading main instagram page to log in
-    loaded = False
-    while not loaded:
-        change_site_main()
+    if not is_logged_in():
+
+        # Loading main instagram page to log in
+        loaded = False
+        while not loaded:
+            change_site_main()
+            
+            try:
+                password_field = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.NAME, "password"))
+                )
+            except:
+                continue
+            try:
+                username_field = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.NAME, "username"))
+                )
+            except:
+                continue
+            loaded = True
         
+        time.sleep(random.uniform(0.5,2))
+        
+        # Typing in credentials and logging in
+        credentials = config.get_credentials()
+        type_in(username_field, credentials[0])
+        time.sleep(random.uniform(0.5,2))
+        type_in(password_field, credentials[1])
+        del credentials
+        time.sleep(random.uniform(0.5,2))
+        password_field.send_keys(Keys.RETURN)
+
+        # Checking if credentials has been correct
         try:
-            password_field = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.NAME, "password"))
+            WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.ID, "slfErrorAlert"))
+            )
+            print("[ERROR]: Wrong Credentials or Poor Internet Connection! Check if username and password are correct!")
+            raise exceptions.WrongCredentials
+        except:
+            pass
+
+        # Waiting for instagram to load up
+        try:
+            WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "s4Iyt"))
             )
         except:
-            continue
-        try:
-            username_field = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.NAME, "username"))
-            )
-        except:
-            continue
-        loaded = True
-    
-    time.sleep(random.uniform(0.5,2))
-    
-    # Typing in credentials and logging in
-    credentials = config.get_credentials()
-    type_in(username_field, credentials[0])
-    time.sleep(random.uniform(0.5,2))
-    type_in(password_field, credentials[1])
-    del credentials
-    time.sleep(random.uniform(0.5,2))
-    password_field.send_keys(Keys.RETURN)
-
-    # Checking if credentials has been correct
-    try:
-        WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.ID, "slfErrorAlert"))
-        )
-        print("[ERROR]: Wrong Credentials or Poor Internet Connection! Check if username and password are correct!")
-        raise exceptions.WrongCredentials
-    except:
-        pass
-
-    # Waiting for instagram to load up
-    try:
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "s4Iyt"))
-        )
-    except:
-        pass
+            pass
 
     # Ommitting instagram question dialog about saving credentials
     change_site_main()
@@ -197,23 +262,22 @@ def get_following_count():
 
 
 def log_out():
-
     logger = Logger.getInstance()
     logger.set_bot_status(BotStatus.LOGGING_OUT)
 
-    profile_div = driver.find_element_by_css_selector("div.Fifk5 > span[role=link]")
-    profile_div.click()
-    time.sleep(random.uniform(0.5,2))
-    log_out_div = driver.find_element_by_css_selector("div._01UL2 > div[role=button]")
-    log_out_div.click()
+    # profile_div = driver.find_element_by_css_selector("div.Fifk5 > span[role=link]")
+    # profile_div.click()
+    # time.sleep(random.uniform(0.5,2))
+    # log_out_div = driver.find_element_by_css_selector("div._01UL2 > div[role=button]")
+    # log_out_div.click()
 
-    try:
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.NAME, "password"))
-        )
-    except:
-        pass
-    logger.set_current_site("")
+    # try:
+    #     WebDriverWait(driver, 10).until(
+    #         EC.presence_of_element_located((By.NAME, "password"))
+    #     )
+    # except:
+    #     pass
+    # logger.set_current_site("")
 
 
 def change_site_hashtag(name):
