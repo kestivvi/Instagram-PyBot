@@ -82,6 +82,8 @@ def start(args):
         ActionBlock = False
 
         def run():
+            nonlocal ActionBlock
+
             try: instagram.actions.like_likelist(3)
             except instagram.exceptions.LimitReached:
                 return
