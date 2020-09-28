@@ -79,12 +79,15 @@ def start(args):
         instagram.actions.get_following_count()
         instagram.actions.get_followers_count()
 
+        ActionBlock = False
+
         def run():
             try: instagram.actions.like_likelist(3)
             except instagram.exceptions.LimitReached:
                 return
             except instagram.exceptions.ActionBlock: 
                 actions.change_site_main()
+                ActionBlock = True
                 return
 
             SITES = []
@@ -101,17 +104,24 @@ def start(args):
                     return
                 except instagram.exceptions.ActionBlock: 
                     actions.change_site_main()
+                    ActionBlock = True
                     return
             
         run()
 
-        try: instagram.actions.unfollow_in_profile()
-        except instagram.exceptions.ActionBlock:
-            instagram.actions.change_site_profile()
+        if not ActionBlock:
+            try: instagram.actions.unfollow_in_profile()
+            except instagram.exceptions.ActionBlock:
+                instagram.actions.change_site_profile()
+                ActionBlock = True
         
         instagram.actions.change_site_profile()
         instagram.actions.log_out()
         instagram.actions.driver_close()
+
+        if ActionBlock:
+            config.delete_cookies()
+
         instagram.actions.sleep()
 
 

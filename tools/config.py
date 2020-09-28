@@ -1,5 +1,5 @@
 from collections import namedtuple
-import argparse, json, functools
+import argparse, json, functools, os
 from pathlib import Path
 
 
@@ -53,3 +53,8 @@ def get_credentials():
 
     return (username, password)
 
+
+def delete_cookies():
+    filepath = Path(data.data_folder) / "cookies.pkl"
+    if os.path.exists(filepath):
+        os.remove(filepath)
