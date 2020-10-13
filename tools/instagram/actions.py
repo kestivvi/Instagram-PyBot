@@ -168,9 +168,23 @@ def driver_close():
     selenium_object.quit()
 
 
+def accept_cookies():
+    try:
+        accept_cookies_button = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "bIiDR"))
+        )
+    except:
+        return
+
+    accept_cookies_button.click()
+    time.sleep(random.uniform(1,3))
+
 def log_in():
     logger = Logger.getInstance()
     logger.set_bot_status(BotStatus.LOGGING_IN)
+
+    change_site_main()
+    accept_cookies()
 
     if not is_logged_in():
 
