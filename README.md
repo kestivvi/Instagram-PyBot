@@ -37,6 +37,8 @@ Then configure a bot settings, to do so enter directory you specified earlier. T
     * verbose - If true, gives nice live dashboard with some stats.
     * min_sleep_time - The shortest time between the bot sessions, from logging out to logging in.
     * max_sleep_time - The greatest time between the bot sessions, from logging out to logging in.
+    * start_hour - The hour of a day, when the bot start his activity.
+    * end_hour - The hour of a day, when the bot end his activity.
     * chances - Bot browsing posts have a chance to do specific things.
     * unfollow_non_followers_first - If true, while unfollowing people at the end of every session bot will be unfollowing people that doesn't follow you in the first place, then people that follow you.
     * min_of_followings - The lowest number of people you follow
