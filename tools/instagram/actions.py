@@ -638,6 +638,10 @@ def work_on_site(post_limit=-1, like_chance=1, comment_chance=1, follow_chance=1
 
         posts += driver.find_elements_by_class_name("v1Nh3")
         posts = remove_duplicates(posts)
+
+        if len(posts) - 1 < post_nr:
+            break 
+        
         post = posts[post_nr]
         time.sleep(random.uniform(0.5,2))
 
