@@ -6,7 +6,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException, JavascriptException
 import time, random, datetime, json, pickle
 from pathlib import Path
-from .. import statistics, config
+from .. import config, db
+from ..db import ACTION
 from ..logger import Logger, BotStatus
 from . import exceptions
 
@@ -43,8 +44,8 @@ def check_restrictness():
         time.sleep(random.uniform(1,3))
         ok_button.click()
 
-        statistics.update(statistics.Data.ERRORS, message="Instagram ActionBlock error")
-        
+        db.insert(ACTION.ERROR, message="Instagram ActionBlock error")
+
         raise exceptions.ActionBlock
     except NoSuchElementException:
         pass
@@ -385,7 +386,7 @@ def like(post):
 
             check_restrictness()
 
-            statistics.update(statistics.Data.LIKES)
+            db.insert(ACTION.LIKE)
             return True
         except NoSuchElementException:
             return False
@@ -412,12 +413,12 @@ def comment(post):
 
         error = bool(driver.find_elements_by_class_name("HGN2m"))
         if error:
-            statistics.update(statistics.Data.ERRORS, message="Couldn't post comment")
+            db.insert(ACTION.ERROR, message="Couldn't post comment")
             return False
 
         check_restrictness()
 
-        statistics.update(statistics.Data.COMMENTS)
+        db.insert(ACTION.COMMENT)
         return True
     except NoSuchElementException:
         return False
@@ -433,7 +434,7 @@ def follow(post):
 
             check_restrictness()
 
-            statistics.update(statistics.Data.FOLLOWS)
+            db.insert(ACTION.FOLLOW)
             global followings
             followings += 1
             return True
@@ -454,7 +455,7 @@ def unfollow(post):
 
             check_restrictness()
 
-            statistics.update(statistics.Data.UNFOLLOWS)
+            db.insert(ACTION.UNFOLLOW)
             global followings
             followings -= 1
             return True
@@ -537,11 +538,11 @@ def unfollow_in_profile():
     # Get count of people you're following
     global followings
     get_following_count()
-
+    
     # Check limit
     unfollow_limit = not (config.data.chance_of_unfollow > 0 
-        and statistics.get(statistics.Data.UNFOLLOWS, hours=1) < config.data.max_unfollows_per_hour 
-        and statistics.get(statistics.Data.UNFOLLOWS, hours=24) < config.data.max_unfollows_per_day
+        and db.how_many(ACTION.UNFOLLOW, 1, "Hour") < config.data.max_unfollows_per_hour 
+        and db.how_many(ACTION.UNFOLLOW, 24, "Hour") < config.data.max_unfollows_per_day
         and followings > config.data.min_of_followings)
 
     if unfollow_limit:
@@ -611,15 +612,15 @@ def unfollow_in_profile():
         check_restrictness()
         
         # Update statistics
-        statistics.update(statistics.Data.UNFOLLOWS)
+        db.insert(ACTION.UNFOLLOW)
         followings -= 1
         Logger.getInstance().set_followings(followings)
         
         # Check config and limit
         config.check_json_config()
         unfollow_limit = not (config.data.chance_of_unfollow > 0 
-            and statistics.get(statistics.Data.UNFOLLOWS, hours=1) < config.data.max_unfollows_per_hour 
-            and statistics.get(statistics.Data.UNFOLLOWS, hours=24) < config.data.max_unfollows_per_day
+            and db.how_many(ACTION.UNFOLLOW, 1, "Hour") < config.data.max_unfollows_per_hour 
+            and db.how_many(ACTION.UNFOLLOW, 24, "Hour") < config.data.max_unfollows_per_day
             and followings > config.data.min_of_followings)
     
 
@@ -661,16 +662,16 @@ def work_on_site(post_limit=-1, like_chance=1, comment_chance=1, follow_chance=1
             post_nr += 1
             time.sleep(random.uniform(0.5,2))
             continue
-
-        like_limit = ((config.data.max_likes_per_hour != -1 and statistics.get(statistics.Data.LIKES, hours=1) >= config.data.max_likes_per_hour)
-                  or (config.data.max_likes_per_day != -1 and statistics.get(statistics.Data.LIKES, hours=24) >= config.data.max_likes_per_day))
-        comment_limit = ((config.data.max_comments_per_hour != -1 and statistics.get(statistics.Data.COMMENTS, hours=1) >= config.data.max_comments_per_hour)
-                     or (config.data.max_comments_per_day != -1 and statistics.get(statistics.Data.COMMENTS, hours=24) >= config.data.max_comments_per_day))
-        follow_limit = ((config.data.max_follows_per_hour != -1 and statistics.get(statistics.Data.FOLLOWS, hours=1) >= config.data.max_follows_per_hour)
-                    or (config.data.max_follows_per_day != -1 and statistics.get(statistics.Data.FOLLOWS, hours=24) >= config.data.max_follows_per_day)
+        
+        like_limit = ((config.data.max_likes_per_hour != -1 and db.how_many(ACTION.LIKE, 1, "Hour") >= config.data.max_likes_per_hour)
+                  or (config.data.max_likes_per_day != -1 and db.how_many(ACTION.LIKE, 24, "Hour") >= config.data.max_likes_per_day))
+        comment_limit = ((config.data.max_comments_per_hour != -1 and db.how_many(ACTION.COMMENT, 1, "Hour") >= config.data.max_comments_per_hour)
+                     or (config.data.max_comments_per_day != -1 and db.how_many(ACTION.COMMENT, 24, "Hour") >= config.data.max_comments_per_day))
+        follow_limit = ((config.data.max_follows_per_hour != -1 and db.how_many(ACTION.FOLLOW, 1, "Hour") >= config.data.max_follows_per_hour)
+                    or (config.data.max_follows_per_day != -1 and db.how_many(ACTION.FOLLOW, 24, "Hour") >= config.data.max_follows_per_day)
                     or followings >= config.data.max_of_followings)
-        unfollow_limit = ((config.data.max_unfollows_per_hour != -1 and statistics.get(statistics.Data.UNFOLLOWS, hours=1) >= config.data.max_unfollows_per_hour)
-                      or (config.data.max_unfollows_per_hour != -1 and statistics.get(statistics.Data.UNFOLLOWS, hours=24) >= config.data.max_unfollows_per_hour))
+        unfollow_limit = ((config.data.max_unfollows_per_hour != -1 and db.how_many(ACTION.UNFOLLOW, 1, "Hour") >= config.data.max_unfollows_per_hour)
+                      or (config.data.max_unfollows_per_hour != -1 and db.how_many(ACTION.UNFOLLOW, 24, "Hour") >= config.data.max_unfollows_per_hour))
         
         def do_stuff():
             chance = random.random()

@@ -1,5 +1,6 @@
 import threading, time, os
-from tools import statistics, config
+from tools import statistics, config, db
+from tools.db import ACTION
 
 ##################################
 # VARIABLES
@@ -118,20 +119,20 @@ class Logger():
 
     def log(self):
         while True:
-            likes_24h = statistics.get(statistics.Data.LIKES, hours=24)
-            comments_24h = statistics.get(statistics.Data.COMMENTS, hours=24)
-            follows_24h = statistics.get(statistics.Data.FOLLOWS, hours=24)
-            unfollows_24h = statistics.get(statistics.Data.UNFOLLOWS, hours=24)
+            likes_24h = db.how_many(ACTION.LIKE, 24, "Hour")
+            comments_24h = db.how_many(ACTION.COMMENT, 24, "Hour")
+            follows_24h = db.how_many(ACTION.FOLLOW, 24, "Hour")
+            unfollows_24h = db.how_many(ACTION.UNFOLLOW, 24, "Hour")
 
             likes_24h_max = config.data.max_likes_per_day
             comments_24h_max = config.data.max_comments_per_day
             follows_24h_max = config.data.max_follows_per_day
             unfollows_24h_max = config.data.max_unfollows_per_day
 
-            likes_1h = statistics.get(statistics.Data.LIKES, hours=1)
-            comments_1h = statistics.get(statistics.Data.COMMENTS, hours=1)
-            follows_1h = statistics.get(statistics.Data.FOLLOWS, hours=1)
-            unfollows_1h = statistics.get(statistics.Data.UNFOLLOWS, hours=1)
+            likes_1h = db.how_many(ACTION.LIKE, 1, "Hour")
+            comments_1h = db.how_many(ACTION.COMMENT, 1, "Hour")
+            follows_1h = db.how_many(ACTION.FOLLOW, 1, "Hour")
+            unfollows_1h = db.how_many(ACTION.UNFOLLOW, 1, "Hour")
 
             likes_1h_max = config.data.max_likes_per_hour
             comments_1h_max = config.data.max_comments_per_hour

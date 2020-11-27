@@ -25,6 +25,10 @@ def handle_args():
     start_parser.set_defaults(func=start)
     start_parser.add_argument("dirpath", help="Path to folder with bot settings and data") 
 
+    start_parser = subparsers.add_parser("exportdb", usage="python main.py exportdb <dirpath>", help="Export db to csv of the bot")
+    start_parser.set_defaults(func=exportdb)
+    start_parser.add_argument("dirpath", help="Path to folder with bot settings and data") 
+
     # Parse arguments
     args = parser.parse_args()
     config.set_dirpath(args.dirpath)
@@ -127,4 +131,16 @@ def start(args):
         instagram.actions.sleep()
 
 
-main()
+def exportdb(args):
+    if not Path(args.dirpath).exists():
+        print("[ERROR] Specified dirpath does not exist!")
+        exit()
+
+    config.check_json_config()
+
+    from tools import db
+    db.db2csv()
+
+
+if __name__ == "__main__":
+    main()
